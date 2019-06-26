@@ -1,17 +1,32 @@
 require('dotenv').config();
 const express = require('express'),
+  mongoose = require('mongoose'),
   cookieSession = require('cookie-session'),
-  bdParser = require('body-parser');
-  //expressGraphQl = require('express-graphql'),
-  //schema = require('./schemaG');
+  cors = require('cors'),
+  bdParser = require('body-parser'),
+  expressGraphQl = require('express-graphql'),
+  schema = require('./schemaG');
+
+  require('./models/Members');
+  require('./models/Mem_leaders');
+
+   //connect to mongoose
+   mongoose.Promise = global.Promise;
+   mongoose.connect(process.env.MONGO_URI, {useNewUrlParser: true});
+   const db_obj = mongoose.connection;
+   db_obj.once('open', function() {
+     console.log('MongoDB Connected...');
+   });
+   db_obj.on('error', console.error.bind(console, 'connection error:'));
 
   const app = express();
-
-  // graphql setup - using graphiql
-  // app.use('/graphql', expressGraphQl({
-  //   schema,
-  //   graphiql: true
-  // }));
+  
+  app.use(cors());
+  //graphql setup
+  app.use('/graphql', expressGraphQl({
+    schema,
+    graphiql: true
+  }));
 
   //body parser middleware - settings
   app.use(
@@ -42,7 +57,7 @@ app.use(
   })
 
 
-  const PORT = process.env.PORT || 8118;
+  const PORT = process.env.PORT || 3000;
   app.listen(PORT,()=>{
     console.log(`Server listen at door:${PORT}`);
   });
